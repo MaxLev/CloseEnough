@@ -1,0 +1,30 @@
+Package: CloseEnough
+Type: Package
+Title: Analyze trajectories within a cellular context
+Version: 0.1.0
+Author: Maxence Le Vasseur
+Maintainer: Maxence Le Vasseur <levasseurmaxence@gmail.com>
+Description: This package uses two-dimensional particle trajectories to identify 
+    non-random association and putative interaction between cellular structures. 
+    It calculates the nearest distance between each point of a trajectory and 
+    surrounding structures reprensented as thresholded binary images taken from a 
+    corresponding sequence of reference images. It can also be used to randomize
+    the trajectories within a pre-defined area. Randomization is used to determine
+    whether the position of particles relative to other cellular structures is
+    stochastic.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    EBImage,
+    ggplot2,
+    dplyr
+Depends: 
+    EBImage,
+    ggplot2,
+    dplyr
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

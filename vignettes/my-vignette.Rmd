@@ -1,0 +1,210 @@
+---
+title: "Introduction to _CloseEnough_"
+author: "Maxence Le Vasseur"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to use this package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This package uses two-dimensional particle trajectories to study the distribution of particles relative to surrounding cellular structures. It calculates the nearest distance between each point of a trajectory and surrounding structures reprensented as thresholded binary images taken from a corresponding sequence of reference images. It can also be used to randomize the trajectories within a pre-defined area which allows you to compare the positioning of particles relative to other cellular structures to a stochastic distribution.
+
+## Getting started
+
+This R package that can be downloaded from [GitHub](https://github.com/MaxLev/CloseEnough). To install this package from GitHub, the _devtools_ package must first be installed. To install _devtools_, start R and enter:
+
+```{r installation, eval=FALSE}
+install.packages("devtools")
+library(devtools)
+```
+
+Then to install the _CloseEnough_ enter:
+
+```
+install_github("MaxLev/CloseEnough")
+```
+
+Once the _CloseEnough_ package is installed, it can be loaded by the following command:
+
+``` {r library, message = FALSE}
+library(CloseEnough)
+```
+
+## Display images
+
+This package depends on the _EBImage_ package to upload and display images. To start off, let us display an image distributed with the _CloseEnough_ package. 
+
+```{r readImage}
+## Load image
+data(cellmovie)
+
+## Display image
+display(cellmovie, method = "browser")
+```
+
+## Display cell outline and trajectories
+
+Let us display the cell outline and overlay the particle trajectories on the image.
+
+```{r display, message = FALSE}
+## Load cell outline
+data(outline)
+
+## Load trajectory
+data(trajectory)
+
+## Display image
+display(cellmovie, method = "raster")
+
+## Trace outline
+lines(outline$x, outline$y, type = "l", col = "white")
+
+## Draw trajectories
+ntraj = nlevels(trajectory["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(trajectory["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "white")
+}
+
+```
+
+## Particle trajectories can be rotated or mirrored if needed
+Let us rotate the particle trajectories to the right by a 90 degree angle:
+
+``` {r, message = FALSE}
+rotated_traj <- rotate_trajectory(trajectory, 90)
+```
+
+and reflect them along the y axis
+
+``` {r, message = FALSE}
+mirror_traj <- mirror_trajectory(trajectory, axis = "y")
+```
+
+Now let us visualize those different trajectories on a simple cell mask
+
+``` {r}
+## Load cell mask
+data(cellmask)
+
+## Display image
+display(cellmask, method = "raster")
+
+## Draw trajectories in black
+ntraj = nlevels(trajectory["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(trajectory["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "black")
+}
+
+## Add the rotated trajectories in blue
+ntraj = nlevels(rotated_traj["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(rotated_traj["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "blue")
+}
+
+## And the reflected trajectories in green
+ntraj = nlevels(mirror_traj["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(mirror_traj["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "green")
+}
+
+```
+
+## Randomization of particle trajectories within the cytoplasm
+_CloseEnough_ can easily randomize particle trajectories within a given area provided by a binary mask image. This provides valuable information regarding the spatial distribution of particles within a cellular context. As an example, let us randomize Panx2 foci trajectories within the cytoplasm and observe how their distribution changes relative to the mitochondrial network.
+
+
+``` {r}
+## Randomize trajectories using an image mask as reference.
+rand_traj <- randomize(trajectory, cellmask)
+
+## Display image
+display(cellmovie, method = "raster")
+
+## Trace cell outline
+lines(outline$x, outline$y, type = "l", col = "white")
+
+## Draw trajectories in white
+ntraj = nlevels(trajectory["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(trajectory["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "white")
+}
+
+## Add the randomized trajectories in blue
+ntraj = nlevels(rand_traj["trajectory"])
+for (i in 1:ntraj) {
+  traj_i <- subset(rand_traj["data"], trajectory == i)
+  lines(traj_i$x, traj_i$y, type="l", col = "blue")
+}
+
+```
+
+
+## Calculate distribution probability
+_CloseEnough_ can calculate the minimal distance between the particles and other cellular structures within a thresholded binary image. In this example, we will calculate the minimal distance between every single Panx2 foci identified in all trajectories and the mitochondrial network. We will also performed the same calculations the particle trajectories whieh were randomized within the cytoplasm earlier.
+
+``` {r}
+## Load the thresholded mask of the mitochondrial network
+data(mitomask)
+
+## Calculate minimal distance between Panx2 foci and mitochondria
+# Channel refers to the channel that needs to be used within the binary image. In this case there is only one channel.
+Panx2_mito <- min_distance(mitomask, trajectory, channel = 1)
+
+## Calculate minimal distance between randomized Panx2 trajectories and mitochondria
+rand_mito <- min_distance(mitomask, rand_traj, channel = 1)
+
+## The value is currently in pixel and can be converted if the size of a pixel was provided. In this case
+## the pixel size was provided in nanometer and will be converted to micrometer
+Panx2_mito$min_distance <- Panx2_mito$min_distance * trajectory["pixel_size"]/1000
+rand_mito$min_distance <- rand_mito$min_distance * trajectory["pixel_size"]/1000
+
+```
+
+Finally, these values can be visualized as probability distributions using any R graphic tools. In this case, we will use the package _ggplot2_.
+
+``` {r ggplot, message = FALSE}
+
+options(scipen = 999)
+## Let us first group the data 
+Panx2_mito$random <- FALSE
+rand_mito$random <- TRUE
+Panx2_mito <- rbind(Panx2_mito, rand_mito)
+
+graph <- ggplot(data = Panx2_mito) +
+  geom_density(aes(x = min_distance, color = random, fill = random),
+               alpha = 0.75, size = 0.8) +
+  theme_bw() +
+  theme(text = element_text(size = 12),
+        plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(color = 'black'),
+        legend.title = element_blank(),
+        legend.position = "top",
+        legend.margin = margin(c(5, 5, 5, 0)),
+        legend.text = element_text(margin = margin(r = 10, unit = "pt"))) +
+  xlab(expression(paste("Distance to mitochondria (in ", mu,"m)"))) +
+  ylab("Density") + 
+  scale_color_manual(values = c("#d95f02", "#7570b3")) +
+  guides(color = FALSE) +
+  scale_fill_manual(labels = c("Panx2", "Randomized"), values = c("#d95f02", "#7570b3")) +
+  coord_cartesian(xlim = c(0.001, 10))
+
+## Display graph
+graph
+```

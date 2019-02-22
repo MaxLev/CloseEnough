@@ -15,14 +15,12 @@ Description: This package uses two-dimensional particle trajectories to identify
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Imports: 
+Imports:
+    methods,
+    dplyr,
     EBImage,
     ggplot2,
-    dplyr
-Depends: 
-    EBImage,
-    ggplot2,
-    dplyr
+    magrittr
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,

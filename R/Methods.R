@@ -45,7 +45,7 @@ rotate_trajectory <- function(object, angle) {
 #'
 #' rotatedtraj <- rotate_trajectory(trajectory, 90)
 #' ## Display image (first frame only)
-#' display(cellmask, method = "raster")
+#' EBImage::display(cellmask, method = "raster")
 #'
 #' ## Overlay trajectories in black
 #' ntraj = nlevels(trajectory["trajectory"])
@@ -106,7 +106,7 @@ mirror_trajectory <- function(object, axis) {
 #' data(trajectory)
 #' mirroredtraj <- mirror_trajectory(trajectory, "x")
 #' ## Display image (first frame only)
-#' display(cellmask, method = "raster")
+#' EBImage::display(cellmask, method = "raster")
 #'
 #' ## Overlay trajectories in black
 #' ntraj = nlevels(trajectory["trajectory"])
@@ -147,6 +147,7 @@ setMethod("mirror_trajectory", "Traj", function(object, axis) {
 #' @param object An object of class Image
 #'
 #' @return
+#' @import EBImage
 #' @export
 frame_image <- function(object) {...}
 
@@ -156,21 +157,21 @@ frame_image <- function(object) {...}
 #' data(cellmovie)
 #'
 #' ## Extract a few frames from the image
-#' df_image <- frame_image(cellmovie[, , , 1:5])
+#' df_image <- frame_image(cellmovie)
 #'
 #'
 setGeneric("frame_image", function(object)
   standardGeneric("frame_image"))
 setMethod("frame_image", "Image", function(object) {
   ## Test arguments validity
-  if (!is.Image(object)) {
-    as.Image(object)
+  if (!EBImage::is.Image(object)) {
+    EBImage::as.Image(object)
   }
   ## Conversion of single-frame, multi-channel color image to data frame
   if (object@colormode == 2 && length(dim(object@.Data)) == 3) {
     dim <- dim(object@.Data)
     channel <- sort(1:dim[3])
-    frame <- 1:numberOfFrames(object, type = "render")
+    frame <- 1:EBImage::numberOfFrames(object, type = "render")
 
     ## Total number of rendered pixels per channel
     total_nb_pixel <- dim[1] * dim[2] * length(frame)
@@ -220,7 +221,7 @@ setMethod("frame_image", "Image", function(object) {
   if (object@colormode == 0 && length(dim(object@.Data)) == 2) {
     dim <- dim(object@.Data)
     channel <- 1
-    frame <- 1: numberOfFrames(object, type = "render")
+    frame <- 1:EBImage::numberOfFrames(object, type = "render")
 
     ## Total number of rendered pixels per channel
     total_nb_pixel <- dim[1] * dim[2] * length(frame)
@@ -241,7 +242,7 @@ setMethod("frame_image", "Image", function(object) {
   if (object@colormode == 0 && length(dim(object@.Data)) == 3) {
     dim <- dim(object@.Data)
     channel <- 1
-    frame <- 1:numberOfFrames(object, type = "render")
+    frame <- 1:EBImage::numberOfFrames(object, type = "render")
 
     ## Total number of rendered pixels per channel
     total_nb_pixel <- dim[1] * dim[2] * length(frame)
@@ -264,7 +265,7 @@ setMethod("frame_image", "Image", function(object) {
   if (object@colormode == 0 && length(dim(object@.Data)) == 4) {
     dim <- dim(object@.Data)
     channel <- sort(1:dim[3])
-    frame <- 1:numberOfFrames(object, type = "render")
+    frame <- 1:EBImage::numberOfFrames(object, type = "render")
 
     ## Total number of rendered pixels per image
     total_nb_pixel <- dim[1] * dim[2] * length(frame)
@@ -346,6 +347,7 @@ setMethod("number_of_frame", "Traj", function(object){
 #' @param mask An object of class Image. The image should be a binary mask.
 #'
 #' @return
+#' @import EBImage
 #' @export
 randomize <- function(trajectory, mask) {...}
 #' @examples
@@ -358,7 +360,7 @@ randomize <- function(trajectory, mask) {...}
 #' randtraj <- randomize(trajectory, mask = cellmask)
 #'
 #' ## Plot trajectories
-#' display(cellmask, method = "raster")
+#' EBImage::display(cellmask, method = "raster")
 #'
 #' ## Overlay trajectories in black
 #' ntraj = nlevels(trajectory["trajectory"])
@@ -381,14 +383,14 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
   if (!is.Traj(trajectory)) {
     stop("'trajectory' must be an object of class 'Traj'.")
   }
-  if (!missing(mask) && !is.Image(mask)) {
-    mask <- as.Image(mask)
+  if (!missing(mask) && !EBImage::is.Image(mask)) {
+    mask <- EBImage::as.Image(mask)
   }
   if (!missing(mask)) {
     ## Check that 'mask' and 'trajectory' are compatible objects
     ## if 'mask' has more than one frame then 'mask' and 'trajectory' must have
     ## the same frame sequence
-    mask_frame <- seq(1, numberOfFrames(mask, type = "render"))
+    mask_frame <- seq(1, EBImage::numberOfFrames(mask, type = "render"))
     if (mask_frame != 1) {
       trajectory_frame <- sort(unique(trajectory@frame))
       if (all(image_frame != trajectory_frame)) {
@@ -413,7 +415,7 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
     data$rand_y <- data$y - data[1, "y"]
     return(data)
   }
-  traj_data <- traj_data %>% group_by(trajectory) %>% mutate(x = x- x[1], y = y- y[1])
+  traj_data <- traj_data %>% dplyr::group_by(trajectory) %>% dplyr::mutate(x = x- x[1], y = y- y[1])
 
   ## random rotation around origin
   rand_rotate <- function(data) {
@@ -425,7 +427,7 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
     data$y <- y
     return(data)
   }
-  traj_data <- traj_data %>% group_by(trajectory) %>% do(rand_rotate(.))
+  traj_data <- traj_data %>% dplyr::group_by(trajectory) %>% dplyr::do(rand_rotate(.))
 
   ## generate grid of possible coordinates
   if (missing(mask)) {
@@ -443,15 +445,14 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
 
   ## random translation along both axis
   rand_translate <- function(data, area) {
-
     initial <- round(runif(1, 1, length(area[area$frame == 1, 1])))
     data[, "x"] <- data[, "x"] + area[initial, "x"]
     data[, "y"] <- data[, "y"] + area[initial, "y"]
     return(data)
   }
 
-  traj_data <- traj_data %>% group_by(trajectory) %>%
-    do(rand_translate(., area = area))
+  traj_data <- traj_data %>% dplyr::group_by(trajectory) %>%
+    dplyr::do(rand_translate(., area = area))
 
   ## Truncate random trajectory coordinates that fall outside the 'mask' area.
   ## First, generate logical vectors testing whether all the points in the
@@ -460,8 +461,8 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
   traj_data$valid_y <- ceiling(traj_data$y) %in% area$y
 
   ## Pruning of out of bounds randomized trajectories
-  traj_data <- traj_data %>% filter(valid_x == TRUE,
-                                    valid_y == TRUE)
+  traj_data <- traj_data %>% dplyr::filter(valid_x == TRUE,
+                                           valid_y == TRUE)
 
   return(Traj(trajectory = traj_data$trajectory,
               frame = traj_data$frame,
@@ -488,6 +489,7 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
 #'
 #' @return
 #' @export
+#' @import EBImage
 min_distance <- function(image, trajectory, channel) {...}
 #'
 #' @examples
@@ -497,7 +499,7 @@ setMethod("min_distance", signature(image = "Image", trajectory = "Traj"),
           function(image, trajectory, channel) {
             ## Check that 'image' and 'trajectory' are compatible objects
             ## 'image' and 'trajectory' must have same sequence of frames
-            image_frame <- seq(1, numberOfFrames(image, type = "render"))
+            image_frame <- seq(1, EBImage::numberOfFrames(image, type = "render"))
             trajectory_frame <- sort(unique(trajectory@frame))
             if (all(image_frame != trajectory_frame)) {
               stop("Incompatible objects! The objects do not share the same frame sequence.")
@@ -519,7 +521,7 @@ setMethod("min_distance", signature(image = "Image", trajectory = "Traj"),
             }
 
             ## Only keep non-black pixels (i.e. the area to be selected within the mask)
-            image_frame <- image_frame %>% filter(.[[4:ncol(image_frame)]] > 0)
+            image_frame <- image_frame %>% dplyr::filter(.[[4:ncol(image_frame)]] > 0)
 
             ## Calculation of the nearest distance per channel
             output <- vector("list", length(channel))
@@ -546,6 +548,66 @@ setMethod("min_distance", signature(image = "Image", trajectory = "Traj"),
               }
               traj_data <- do.call(rbind, traj_data)
             }
-            return(traj_data)
+            output <- TrajEucl(trajectory = traj_data$Trajectory,
+                           frame = traj_data$Frame,
+                           time = trajectory@time,
+                           time_unit = trajectory@time_unit,
+                           x = traj_data$x,
+                           y = traj_data$y,
+                           min_distance = traj_data$min_distance * trajectory@pixel_size,
+                           dim_x = trajectory@dim_x,
+                           dim_y = trajectory@dim_y,
+                           pixel_size = trajectory@pixel_size,
+                           pixel_unit = trajectory@pixel_unit)
+
+            return(output)
           })
 
+
+## Plot
+
+#' Title
+#'
+#' @param traj
+#' @param randtraj
+#'
+#' @return
+#' @export
+#' @import ggplot2
+#' @examples
+#'
+setGeneric("profileplot", function(traj, randtraj) standardGeneric("profileplot"))
+setMethod("profileplot", signature(traj = "TrajEucl", randtraj = "TrajEucl"), function(traj, randtraj){
+
+  ## Prevent scientific notation
+  options(scipen = 999)
+
+  ## Extract pixel unit for labelins axis
+  pixel_unit <- traj@pixel_unit
+
+  ## Let us group the data
+  traj <- data.frame("min_distance" = c(traj@min_distance, randtraj@min_distance),
+                     "random" = c(rep(FALSE, length(traj@min_distance)),
+                                  rep(TRUE, length(randtraj@min_distance))))
+
+  graph <- ggplot(data = traj) +
+    geom_density(aes(x = min_distance, color = random, fill = random),
+                          alpha = 0.75, size = 0.8) +
+    theme_bw() +
+    theme(text = element_text(size = 12),
+                   plot.background = element_blank(),
+                   panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   panel.border = element_blank(),
+                   axis.line = element_line(color = 'black'),
+                   legend.title = element_blank(),
+                   legend.position = "top",
+                   legend.margin = margin(c(5, 5, 5, 0)),
+                   legend.text = element_text(margin = margin(r = 10, unit = "pt"))) +
+    xlab(paste0("Distance to mitochondria (in ", pixel_unit,")")) +
+    ylab("Density") +
+    scale_color_manual(values = c("#d95f02", "#7570b3")) +
+    guides(color = FALSE) +
+    scale_fill_manual(labels = c("Panx2", "Randomized"), values = c("#d95f02", "#7570b3"))
+  return(graph)
+  })

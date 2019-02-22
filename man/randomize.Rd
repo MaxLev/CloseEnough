@@ -29,7 +29,7 @@ data(trajectory)
 randtraj <- randomize(trajectory, mask = cellmask)
 
 ## Plot trajectories
-display(cellmask, method = "raster")
+EBImage::display(cellmask, method = "raster")
 
 ## Overlay trajectories in black
 ntraj = nlevels(trajectory["trajectory"])
@@ -45,5 +45,4 @@ lines(traj_i$x, traj_i$y, type="l", col = "blue")
 }
 
 
-## Upload cell outline
 }

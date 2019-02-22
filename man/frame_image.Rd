@@ -20,7 +20,7 @@ Stores the information of an image into a data frame.
 data(cellmovie)
 
 ## Extract a few frames from the image
-df_image <- frame_image(cellmovie[, , , 1:5])
+df_image <- frame_image(cellmovie)
 
 
 }

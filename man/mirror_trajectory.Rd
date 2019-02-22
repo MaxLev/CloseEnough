@@ -21,7 +21,7 @@ data(cellmask)
 data(trajectory)
 mirroredtraj <- mirror_trajectory(trajectory, "x")
 ## Display image (first frame only)
-display(cellmask, method = "raster")
+EBImage::display(cellmask, method = "raster")
 
 ## Overlay trajectories in black
 ntraj = nlevels(trajectory["trajectory"])

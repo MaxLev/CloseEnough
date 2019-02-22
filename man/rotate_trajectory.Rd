@@ -24,7 +24,7 @@ data(trajectory)
 
 rotatedtraj <- rotate_trajectory(trajectory, 90)
 ## Display image (first frame only)
-display(cellmask, method = "raster")
+EBImage::display(cellmask, method = "raster")
 
 ## Overlay trajectories in black
 ntraj = nlevels(trajectory["trajectory"])

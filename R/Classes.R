@@ -112,6 +112,52 @@ Traj <- function(trajectory = factor(), frame = integer(), time = numeric(),
   }
 ### End of 'Traj' constructor --------------------------------------------------
 
+
+## Class 'TrajEucl' definition -------------------------------------------------
+.TrajEucl <-
+  setClass("TrajEucl",
+           representation (min_distance = "numeric"),
+           contains = "Traj",
+           validity = function(object) {
+             errors <- character()
+
+             ## 'min_distance' must have the same length as 'trajectory',
+             ## "frame', 'time', 'x' and 'y'
+             if (length(object@min_distance) != length(object@x)) {
+               msg <- paste("'min_distance' does not have the proper length.")
+               errors <- c(errors, msg)
+             }
+             if (length(errors) == 0) TRUE else errors
+           }
+  )
+### End of class 'TrajEucl' ----------------------------------------------------
+## Constructor function for class 'TrajEucl' -----------------------------------
+TrajEucl <- function(trajectory = factor(),
+                     frame = integer(),
+                     time = numeric(),
+                     time_unit = character(),
+                     x = numeric(),
+                     y = numeric(),
+                     min_distance = numeric(),
+                     dim_x = integer(),
+                     dim_y = integer(),
+                     pixel_size = numeric(),
+                     pixel_unit = character(), ...) {
+
+  .TrajEucl(Traj(trajectory = trajectory,
+                 frame = frame,
+                 time = time,
+                 x = x,
+                 y = y,
+                 time_unit = time_unit,
+                 dim_x = dim_x,
+                 dim_y = dim_y,
+                 pixel_size = pixel_size,
+                 pixel_unit = pixel_unit),
+            min_distance = min_distance, ...)
+}
+### End of constructor for class 'TrajEucl' ------------------------------------
+
 ## is.Traj ---------------------------------------------------------------------
 is.Traj <- function (x) is(x, "Traj")
 

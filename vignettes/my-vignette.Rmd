@@ -12,11 +12,13 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 6
 )
 ```
 
-This package uses two-dimensional particle trajectories to study the distribution of particles relative to surrounding cellular structures. It calculates the nearest distance between each point of a trajectory and surrounding structures reprensented as thresholded binary images taken from a corresponding sequence of reference images. It can also be used to randomize the trajectories within a pre-defined area which allows you to compare the positioning of particles relative to other cellular structures to a stochastic distribution.
+This package uses two-dimensional particle trajectories to study the distribution of particles relative to surrounding cellular structures. It calculates the nearest distance between each point of a trajectory and surrounding structures reprensented as thresholded binary images taken from a corresponding sequence of reference images. It can also be used to randomize the trajectories within a pre-defined area in order to compare the positioning of particles relative to other cellular structures to a stochastic distribution.
 
 ## Getting started
 
@@ -48,7 +50,7 @@ This package depends on the _EBImage_ package to upload and display images. To s
 data(cellmovie)
 
 ## Display image
-display(cellmovie, method = "browser")
+EBImage::display(cellmovie, method = "browser")
 ```
 
 ## Display cell outline and trajectories
@@ -63,7 +65,7 @@ data(outline)
 data(trajectory)
 
 ## Display image
-display(cellmovie, method = "raster")
+EBImage::display(cellmovie, method = "raster")
 
 ## Trace outline
 lines(outline$x, outline$y, type = "l", col = "white")
@@ -84,7 +86,7 @@ Let us rotate the particle trajectories to the right by a 90 degree angle:
 rotated_traj <- rotate_trajectory(trajectory, 90)
 ```
 
-and reflect them along the y axis
+or reflect them along the y axis
 
 ``` {r, message = FALSE}
 mirror_traj <- mirror_trajectory(trajectory, axis = "y")
@@ -92,12 +94,12 @@ mirror_traj <- mirror_trajectory(trajectory, axis = "y")
 
 Now let us visualize those different trajectories on a simple cell mask
 
-``` {r}
+``` {r, message = FALSE}
 ## Load cell mask
 data(cellmask)
 
 ## Display image
-display(cellmask, method = "raster")
+EBImage::display(cellmask, method = "raster")
 
 ## Draw trajectories in black
 ntraj = nlevels(trajectory["trajectory"])
@@ -126,12 +128,12 @@ for (i in 1:ntraj) {
 _CloseEnough_ can easily randomize particle trajectories within a given area provided by a binary mask image. This provides valuable information regarding the spatial distribution of particles within a cellular context. As an example, let us randomize Panx2 foci trajectories within the cytoplasm and observe how their distribution changes relative to the mitochondrial network.
 
 
-``` {r}
+``` {r, message = FALSE}
 ## Randomize trajectories using an image mask as reference.
 rand_traj <- randomize(trajectory, cellmask)
 
 ## Display image
-display(cellmovie, method = "raster")
+EBImage::display(cellmovie, method = "raster")
 
 ## Trace cell outline
 lines(outline$x, outline$y, type = "l", col = "white")
@@ -154,9 +156,9 @@ for (i in 1:ntraj) {
 
 
 ## Calculate distribution probability
-_CloseEnough_ can calculate the minimal distance between the particles and other cellular structures within a thresholded binary image. In this example, we will calculate the minimal distance between every single Panx2 foci identified in all trajectories and the mitochondrial network. We will also performed the same calculations the particle trajectories whieh were randomized within the cytoplasm earlier.
+_CloseEnough_ can calculate the minimal distance between the particles and other cellular structures within a thresholded binary image. In this example, we will calculate the minimal distance between every single Panx2 foci used to build the trajectories and the mitochondrial network. We will also performed the same calculations with our randomized trajectories.
 
-``` {r}
+``` {r, fig.width = 8, fig.height = 6}
 ## Load the thresholded mask of the mitochondrial network
 data(mitomask)
 
@@ -166,45 +168,12 @@ Panx2_mito <- min_distance(mitomask, trajectory, channel = 1)
 
 ## Calculate minimal distance between randomized Panx2 trajectories and mitochondria
 rand_mito <- min_distance(mitomask, rand_traj, channel = 1)
-
-## The value is currently in pixel and can be converted if the size of a pixel was provided. In this case
-## the pixel size was provided in nanometer and will be converted to micrometer
-Panx2_mito$min_distance <- Panx2_mito$min_distance * trajectory["pixel_size"]/1000
-rand_mito$min_distance <- rand_mito$min_distance * trajectory["pixel_size"]/1000
-
 ```
 
-Finally, these values can be visualized as probability distributions using any R graphic tools. In this case, we will use the package _ggplot2_.
+Finally, these values can be visualized as probability distributions using any R graphic tools. The real and randomized probability distributions can also be directly compared with the function _profileplot_:
 
-``` {r ggplot, message = FALSE}
-
-options(scipen = 999)
-## Let us first group the data 
-Panx2_mito$random <- FALSE
-rand_mito$random <- TRUE
-Panx2_mito <- rbind(Panx2_mito, rand_mito)
-
-graph <- ggplot(data = Panx2_mito) +
-  geom_density(aes(x = min_distance, color = random, fill = random),
-               alpha = 0.75, size = 0.8) +
-  theme_bw() +
-  theme(text = element_text(size = 12),
-        plot.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        axis.line = element_line(color = 'black'),
-        legend.title = element_blank(),
-        legend.position = "top",
-        legend.margin = margin(c(5, 5, 5, 0)),
-        legend.text = element_text(margin = margin(r = 10, unit = "pt"))) +
-  xlab(expression(paste("Distance to mitochondria (in ", mu,"m)"))) +
-  ylab("Density") + 
-  scale_color_manual(values = c("#d95f02", "#7570b3")) +
-  guides(color = FALSE) +
-  scale_fill_manual(labels = c("Panx2", "Randomized"), values = c("#d95f02", "#7570b3")) +
-  coord_cartesian(xlim = c(0.001, 10))
-
+``` {r, message = FALSE}
+graph <- profileplot(traj = Panx2_mito, randtraj = rand_mito)
 ## Display graph
 graph
 ```

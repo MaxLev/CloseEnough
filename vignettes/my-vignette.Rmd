@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This package uses two-dimensional particle trajectories to study the spatial distribution of particles relative to surrounding cellular structures. It calculates the nearest distance between each point of a trajectory and surrounding structures from binary images taken from a corresponding sequence of reference images. _It can also be used to _CloseEnough_ also randomizes the trajectories within a pre-defined area and compares the positioning of particles relative to other cellular structures to a stochastic distribution.
+This package uses two-dimensional particle trajectories to study the spatial distribution of particles relative to surrounding cellular structures. It calculates the nearest distance between each point of a trajectory and surrounding structures represented as a binary masks in reference images. _CloseEnough_ can also randomize the trajectories within a pre-defined area and compare the relative positioning of particles and surrounding structures to a stochastic distribution.
 
 ## Getting started
 
@@ -125,7 +125,7 @@ for (i in 1:ntraj) {
 ```
 
 ## Randomization of particle trajectories within the cytoplasm
-_CloseEnough_ can easily randomize particle trajectories within a given area provided by a binary mask image. This provides valuable information regarding the spatial distribution of particles within a cellular context. As an example, let us randomize the trajectories of those green foci within the cytoplasm and observe how their distribution changes relative to the mitochondrial network.
+_CloseEnough_ can easily randomize particle trajectories within a given area provided by a binary mask image. This provides valuable information regarding the spatial distribution of particles within a cellular context. As an example, let us randomize the trajectories of those green foci within the cytoplasm and observe how the spatial distribution of those foci changes relative to the mitochondrial network.
 
 ``` {r, message = FALSE}
 ## Randomize trajectories using an image mask as reference.
@@ -154,23 +154,23 @@ for (i in 1:ntraj) {
 ```
 
 
-## Analyze relative spatial distribution
+## Analyze spatial distribution
 _CloseEnough_ can calculate the minimal distance between the particles and other cellular structures within a thresholded binary image. In this example, we will calculate the minimal distance between every green foci within the trajectories and the mitochondrial network. We will also performed the same calculations with our randomized trajectories.
 
 ``` {r, fig.width = 8, fig.height = 6}
 ## Load the thresholded mask of the mitochondrial network
 data(mitomask)
 
-## Calculate minimal distance between Panx2 foci and mitochondria
+## Calculate minimal distance between foci and mitochondria
 # Channel refers to the channel that needs to be used within the binary image. In this case there is only one channel.
 traj_mito <- min_distance(mitomask, trajectory, channel = 1)
 
-## Calculate minimal distance between randomized Panx2 trajectories and mitochondria
+## Calculate minimal distance between randomized foci and mitochondria
 rand_mito <- min_distance(mitomask, rand_traj, channel = 1)
 ```
 
-## Visualize relative spatial distribution
-Finally, these values can be visualized as probability distributions using any R graphic tools. The real and randomized probability distributions can also be directly compared with the function _profileplot_:
+## Visualize spatial distribution
+Finally, these values can be visualized using any R graphic tools. The original and randomized distributions can also be plotted and compared using our function _profileplot_.
 
 ``` {r, message = FALSE}
 graph <- profileplot(traj = traj_mito, randtraj = rand_mito)

@@ -10,5 +10,5 @@
 #' @name CloseEnough
 #'
 #' @importClassesFrom EBImage Image
-#' @importMethodsFrom EBImage Ops as.array getFrame getFrames numberOfFrames readImage display
+#' @importMethodsFrom EBImage Ops
 NULL

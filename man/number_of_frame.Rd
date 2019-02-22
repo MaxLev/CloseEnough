@@ -5,8 +5,6 @@
 \title{Returns the number of frames}
 \usage{
 number_of_frame(object)
-
-number_of_frame(object)
 }
 \arguments{
 \item{object}{An object of class Traj}

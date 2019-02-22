@@ -5,8 +5,6 @@
 \title{Randomizes trajectories within a delimited area.}
 \usage{
 randomize(trajectory, mask)
-
-randomize(trajectory, mask)
 }
 \arguments{
 \item{trajectory}{An object of class Traj}

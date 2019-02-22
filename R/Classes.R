@@ -1,4 +1,17 @@
 ## Class 'Traj', definition and construction
+#' An S4 class to represent trajectories.
+#'
+#' @slot trajectory A vector of factor values representing the trajectory ID.
+#' @slot frame A numeric vector representing the image frames in which the points
+#' within the trajectories were taken
+#' @slot time A length-one numeric vector representing the time interval between image frames
+#' @slot time_unit Character(s) representing the unit of time (e.g. "second", "s", "min)
+#' @slot x A numeric vector corresponding to the 'x' coordinates of each data point.
+#' @slot y A numeric vector corresponding to the 'y' coordinates of each data point.
+#' @slot dim_x An integer representing the image width (usually in pixels)
+#' @slot dim_y An integer representing the image height (usually in pixels)
+#' @slot pixel_size An integer representing the pixel size (usually in microns or nanometers)
+#' @slot pixel_unit Character(s) for the unit of pixel (e.g. "nanometer", "nm", "micrometer").
 .Traj <- setClass("Traj",
                   representation = representation(
                     trajectory = "factor",
@@ -13,9 +26,9 @@
                     pixel_unit = "character"))
 
 ## Constructor for class 'Traj' ------------------------------------------------
-#' Traj class
+#' Constructor for the S4 class Traj that represents trajectories.
 #'
-#' This package uses the Traj class to store trajectory parameters.
+#' \code{Traj} builds a Traj object.
 #'
 #' @param trajectory A vector of unique trajectory identifiers.
 #' @param frame A vector of integers corresponding to the image frame of each data point.
@@ -31,12 +44,6 @@
 #'
 #' @return
 #' @export
-Traj <- function(trajectory = factor(), frame = integer(), time = numeric(),
-                 time_unit = character(), x = numeric(), y = numeric(),
-                 dim_x = integer(), dim_y = integer(),
-                 pixel_size = numeric(), pixel_unit = character(), ...) {
-  ...
-  }
 #'
 #' @examples
 #' data(coordinates)
@@ -114,6 +121,25 @@ Traj <- function(trajectory = factor(), frame = integer(), time = numeric(),
 
 
 ## Class 'TrajEucl' definition -------------------------------------------------
+#' S4 TrajEucl class
+#'
+#' TrajEucl inherits from the S4 class Traj but contains and additional slot representing
+#' the minimal distance between every point of all trajectories and another structures.
+#'
+#'
+#' @slot trajectory A vector of factor values representing the trajectory ID.
+#' @slot frame A numeric vector representing the image frames in which the points
+#' within the trajectories were taken
+#' @slot time A length-one numeric vector representing the time interval between image frames
+#' @slot time_unit Character(s) representing the unit of time (e.g. "second", "s", "min)
+#' @slot x A numeric vector corresponding to the 'x' coordinates of each data point.
+#' @slot y A numeric vector corresponding to the 'y' coordinates of each data point.
+#' @slot dim_x An integer representing the image width (usually in pixels)
+#' @slot dim_y An integer representing the image height (usually in pixels)
+#' @slot pixel_size An integer representing the pixel size (usually in microns or nanometers)
+#' @slot pixel_unit Character(s) for the unit of pixel (e.g. "nanometer", "nm", "micrometer").
+#' @slot min_distance A numeric vector.
+
 .TrajEucl <-
   setClass("TrajEucl",
            representation (min_distance = "numeric"),
@@ -132,6 +158,25 @@ Traj <- function(trajectory = factor(), frame = integer(), time = numeric(),
   )
 ### End of class 'TrajEucl' ----------------------------------------------------
 ## Constructor function for class 'TrajEucl' -----------------------------------
+#' Title
+#'
+#' @param trajectory
+#' @param frame
+#' @param time
+#' @param time_unit
+#' @param x
+#' @param y
+#' @param min_distance
+#' @param dim_x
+#' @param dim_y
+#' @param pixel_size
+#' @param pixel_unit
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
 TrajEucl <- function(trajectory = factor(),
                      frame = integer(),
                      time = numeric(),

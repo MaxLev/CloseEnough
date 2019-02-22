@@ -5,8 +5,6 @@
 \title{Stores the information of an image into a data frame.}
 \usage{
 frame_image(object)
-
-frame_image(object)
 }
 \arguments{
 \item{object}{An object of class Image}

@@ -5,8 +5,6 @@
 \title{Reflect trajectories}
 \usage{
 mirror_trajectory(object, axis)
-
-mirror_trajectory(object, axis)
 }
 \arguments{
 \item{object}{An object of class 'Traj'}

@@ -2,13 +2,8 @@
 % Please edit documentation in R/Classes.R
 \name{Traj}
 \alias{Traj}
-\title{Traj class}
+\title{Constructor for the S4 class Traj that represents trajectories.}
 \usage{
-Traj(trajectory = factor(), frame = integer(), time = numeric(),
-  time_unit = character(), x = numeric(), y = numeric(),
-  dim_x = integer(), dim_y = integer(), pixel_size = numeric(),
-  pixel_unit = character(), ...)
-
 Traj(trajectory = factor(), frame = integer(), time = numeric(),
   time_unit = character(), x = numeric(), y = numeric(),
   dim_x = integer(), dim_y = integer(), pixel_size = numeric(),
@@ -38,7 +33,7 @@ Traj(trajectory = factor(), frame = integer(), time = numeric(),
 \item{...}{}
 }
 \description{
-This package uses the Traj class to store trajectory parameters.
+\code{Traj} builds a Traj object.
 }
 \examples{
 data(coordinates)

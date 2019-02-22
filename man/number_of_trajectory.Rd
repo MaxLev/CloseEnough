@@ -5,8 +5,6 @@
 \title{Returns the number of trajectories}
 \usage{
 number_of_trajectory(object)
-
-number_of_trajectory(object)
 }
 \arguments{
 \item{object}{An object of class Traj}

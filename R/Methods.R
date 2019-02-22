@@ -35,8 +35,6 @@ setMethod("[", "Traj", function(x, i, j, ..., drop){
 #'
 #' @return
 #' @export
-rotate_trajectory <- function(object, angle) {
-  ... }
 #'
 #' @examples
 #' ## Upload image and trajectories
@@ -97,9 +95,6 @@ setMethod("rotate_trajectory", "Traj", function(object, angle) {
 #'
 #' @return
 #' @export
-mirror_trajectory <- function(object, axis) {
-  ...
-}
 #'
 #' @examples
 #' data(cellmask)
@@ -149,8 +144,6 @@ setMethod("mirror_trajectory", "Traj", function(object, axis) {
 #' @return
 #' @import EBImage
 #' @export
-frame_image <- function(object) {...}
-
 #' @examples
 #'
 #' ## Load image
@@ -296,7 +289,6 @@ setMethod("frame_image", "Image", function(object) {
 #'
 #' @return
 #' @export
-number_of_trajectory <- function(object) {...}
 #' @examples
 #'
 #' data(trajectory)
@@ -314,7 +306,6 @@ setMethod("number_of_trajectory", "Traj", function(object) {
 #'
 #' @return
 #' @export
-number_of_frame <- function(object) {...}
 #' @examples
 #'
 #' data(trajectory)
@@ -349,7 +340,6 @@ setMethod("number_of_frame", "Traj", function(object){
 #' @return
 #' @import EBImage
 #' @export
-randomize <- function(trajectory, mask) {...}
 #' @examples
 #'
 #' ## Upload mask and trajectories
@@ -490,7 +480,6 @@ setMethod("randomize", "Traj", function(trajectory, mask) {
 #' @return
 #' @export
 #' @import EBImage
-min_distance <- function(image, trajectory, channel) {...}
 #'
 #' @examples
 setGeneric("min_distance", function(image, trajectory, channel)
@@ -604,10 +593,10 @@ setMethod("profileplot", signature(traj = "TrajEucl", randtraj = "TrajEucl"), fu
                    legend.position = "top",
                    legend.margin = margin(c(5, 5, 5, 0)),
                    legend.text = element_text(margin = margin(r = 10, unit = "pt"))) +
-    xlab(paste0("Distance to mitochondria (in ", pixel_unit,")")) +
+    xlab(paste0("Distance (in ", pixel_unit,")")) +
     ylab("Density") +
     scale_color_manual(values = c("#d95f02", "#7570b3")) +
     guides(color = FALSE) +
-    scale_fill_manual(labels = c("Panx2", "Randomized"), values = c("#d95f02", "#7570b3"))
+    scale_fill_manual(labels = c("Original", "Randomized"), values = c("#d95f02", "#7570b3"))
   return(graph)
   })

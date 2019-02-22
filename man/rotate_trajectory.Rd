@@ -5,8 +5,6 @@
 \title{Rotate trajectories}
 \usage{
 rotate_trajectory(object, angle)
-
-rotate_trajectory(object, angle)
 }
 \arguments{
 \item{object}{An object of class 'Traj'}
